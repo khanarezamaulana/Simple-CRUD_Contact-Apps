@@ -159,12 +159,14 @@ class Contacts extends React.Component {
                     <td>{val.firstName}</td>
                     <td>{val.lastName}</td>
                     <td>{val.age}</td>
-                    <td>{val.photo ? 
+                    
+                    {/* Jika value photo === N/A maka tampilin defaultb photo, tapi jika ada tampilin photonya */}
+                    <td>{val.photo === "N/A" ? 
+                        <img alt="photo" src="https://cdn.pixabay.com/photo/2012/04/26/19/43/profile-42914_960_720.png"
+                        style={{width: '100px', height: 'auto'}} />
+                        :
                         <img alt="photo" src={val.photo} 
                         style={{width: "100px", height: 'auto'}}/>
-                        : 
-                        <img alt="photo" src="http://chittagongit.com//images/default-profile-icon/default-profile-icon-24.jpg"
-                        style={{width: '25%', height: 'auto'}} />
                         }
                     </td>
                     <td><button onClick={() => {this.editContact(val.id)}} type="button" className="btn btn-primary" data-toggle="modal" data-target="#editContactModal">Edit</button></td>

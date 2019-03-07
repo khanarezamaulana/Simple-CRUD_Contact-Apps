@@ -160,7 +160,7 @@ class Contacts extends React.Component {
                     <td>{val.lastName}</td>
                     <td>{val.age}</td>
                     
-                    {/* Jika value photo === N/A maka tampilin defaultb photo, tapi jika ada tampilin photonya */}
+                    {/* Jika value photo === N/A maka tampilin default photo, tapi jika ada tampilin photonya */}
                     <td>{val.photo === "N/A" ? 
                         <img alt="photo" src="https://cdn.pixabay.com/photo/2012/04/26/19/43/profile-42914_960_720.png"
                         style={{width: '100px', height: 'auto'}} />

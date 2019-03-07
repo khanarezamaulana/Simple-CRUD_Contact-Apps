@@ -9,21 +9,30 @@ class Contacts extends React.Component {
         super();
         this.state = {
           contacts: [],
+          loading: [],
           dataContact: {
             firstName: "",
             lastName: "",
             age: "",
             photo: ""
-          }     
+          },
+          contact_id: ""  
         }
     }
 
     // untuk ambil semua data
     componentDidMount(){
+
+        this.setState({
+            loading: <img style={{width: "25%", height: "25%", marginTop: "25%", marginLeft: "130%"}} alt='loading' src='https://loading.io/spinners/spin/lg.ajax-spinner-gif.gif'/>,
+            contacts: []
+        })
+
         var url = "https://simple-contact-crud.herokuapp.com/contact";
         axios.get(url)
         .then((x) => {
             this.setState({
+                loading: [],
                 contacts: x.data.data
             })
             console.log(x.data.data)
@@ -32,9 +41,21 @@ class Contacts extends React.Component {
             console.log(err)
         })
     }
+    
+    // ambil/search data berdasarkan ID
+    ambilDataById = () => {
+        axios.get(`https://simple-contact-crud.herokuapp.com/contact/${this.state.contact_id}`)
+        .then((x) => {
+            console.log(x)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+    }
 
     // fungsi untuk add contact
     addContact = () => {
+        console.log(this.state.dataContact)
         var url = "https://simple-contact-crud.herokuapp.com/contact";
         axios.post(url, this.state.dataContact)
         .then((x) => {
@@ -43,6 +64,9 @@ class Contacts extends React.Component {
                 icon: "success",
                 title: "Successfully!"
             })
+
+            // supaya ketika data sukses ditambahkan, maka langsung ke direct ke halaman contacs
+            window.location.href = "/"
         })
         .catch((err) => {
             console.log(err)
@@ -55,6 +79,12 @@ class Contacts extends React.Component {
 
     // untuk ambil data by id yg dipilih
     editContact = (id) => {
+
+        // untuk dapetin id yang di update data nya
+        this.setState({
+            contact_id: id
+        })
+
         // untuk ambil data by id yg dipilih
         axios.get(`https://simple-contact-crud.herokuapp.com/contact/${id}`)
         .then((x) => {
@@ -66,35 +96,29 @@ class Contacts extends React.Component {
         .catch((err) => {
             console.log(err)
         })
-
-        // // untuk edit contact by id yg dipilih
-        // axios.put(`https://simple-contact-crud.herokuapp.com/contact/${id}`, this.state.dataContact)
-        // .then(() => {
-        //     swal({
-        //         icon: "success",
-        //         title: "Contact updated!"
-        //     })
-        // })
-        // .catch(() => {
-        //     swal({
-        //         icon: "warning",
-        //         title: "Update failed!"
-        //     })
-        // })
     }
 
+    // note : fungsi updateContact ini akan jalan jika fungsi PUT by ID di dokumentasi bisa jalan, 
+    // karna beberapa kali Saya coba fungsi PUT by ID di dokumentasi >> https://simple-contact-crud.herokuapp.com/documentation#!/contact/deleteContactId fungsinya tidak jalan. 
+    // maybe something wrong dengan api nya. Dan Saya juga tidak bisa melakukan pengecekan problemnya. karna itu data dummy dari contact API heroku. Thank you :) 
     // untuk edit contact by id yg dipilih
     updateContact = () => {
-        console.log(this.state.dataContact.id)
-        console.log('ghghg')
-        axios.put(`https://simple-contact-crud.herokuapp.com/contact/${this.state.dataContact.id}`, this.state.dataContact)
+
+        // untuk ngecek aja isi dari state contact_id dan dataContact yang akan di update
+        console.log(this.state.contact_id);
+        console.log(this.state.dataContact)
+        axios.put(`https://simple-contact-crud.herokuapp.com/contact/${this.state.contact_id}`, this.state.dataContact)
         .then(() => {
             swal({
                 icon: "success",
                 title: "Contact updated!"
             })
+
+            // supaya ketika data sukses diupdate, maka langsung ke direct ke halaman contacs
+            window.location.href = "/"
         })
-        .catch(() => {
+        .catch((err) => {
+            console.log(err);
             swal({
                 icon: "warning",
                 title: "Update failed!"
@@ -102,14 +126,21 @@ class Contacts extends React.Component {
         })
     }
 
+    // note : dan juga fungsi deleteContact ini akan jalan jika fungsi DELETE by ID di dokumentasi bisa jalan, 
+    // karna beberapa kali Saya coba fungsi DELETE by ID di dokumentasi >> https://simple-contact-crud.herokuapp.com/documentation#!/contact/deleteContactId, juga fungsinya tidak jalan. 
+    // maybe something wrong dengan api nya. Dan Saya juga tidak bisa melakukan pengecekan problemnya. karna itu data dummy dari contact API heroku. Thank you :) 
     // fungsi untuk delete contact by id
     deleteContact = (id) => {
+        console.log(id)
         axios.delete(`https://simple-contact-crud.herokuapp.com/contact/${id}`)
         .then(() => {
             swal({
                 icon: "success",
                 title: "Contact deleted!"
             })
+
+            // supaya ketika data sukses didelete, maka langsung ke direct ke halaman contacs
+            window.location.href = "/"
         })
         .catch(() => {
             swal({
@@ -164,7 +195,7 @@ class Contacts extends React.Component {
                                             <label htmlFor="name">First Name</label>
                                             <input type="name" className="form-control" id="firstname" onChange={(e) => {
                                                 let dataContactCopy = this.state.dataContact;
-                                                dataContactCopy.firstname = e.target.value;
+                                                dataContactCopy.firstName = e.target.value;
                                                 this.setState({
                                                     dataContact: dataContactCopy
                                                 })
@@ -177,7 +208,7 @@ class Contacts extends React.Component {
                                             <label htmlFor="name">Last Name</label>
                                             <input type="name" className="form-control" id="lastname" onChange={(e) => {
                                                 let dataContactCopy = this.state.dataContact;
-                                                dataContactCopy.lastname = e.target.value;
+                                                dataContactCopy.lastName = e.target.value;
                                                 this.setState({
                                                     dataContact: dataContactCopy
                                                 })
@@ -318,11 +349,17 @@ class Contacts extends React.Component {
                         <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#addContactModal">Add Contact</button>
                     </div>
                     <div class="input-group col-md-10">
-                        <input type="text" class="form-control" placeholder="Search by ID"/>
+                        <input type="text" class="form-control" placeholder="Search by ID, please enter contact ID here ..." onChange={(e) => {
+                            this.setState({
+                                contact_id: e.target.value
+                            })
+                        }}
+                        
+                        />
                         <div class="input-group-append">
-                        <button class="btn btn-secondary" type="button">
+                        <a href={`/contact/${this.state.contact_id}`}><button class="btn btn-secondary" type="button" onClick={this.ambilDataById}>
                             <i class="fa fa-search"></i>
-                        </button>
+                        </button></a>
                         </div>
                     </div>
                 </div>
@@ -338,6 +375,7 @@ class Contacts extends React.Component {
                         </tr>
                     </thead>
                     <tbody>
+                        {this.state.loading}
                         {this.state.contacts ? this.contacts() : ""}
                         {this.displayModalAddContact()}
                         {this.displayModalEditContact()}
